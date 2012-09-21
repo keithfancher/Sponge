@@ -1,3 +1,7 @@
+// we like it STRICT, baby
+"use strict";
+
+
 // some useful "constants"
 var SCREEN_WIDTH = 900;
 var SCREEN_HEIGHT = 600;
