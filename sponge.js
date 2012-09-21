@@ -52,17 +52,39 @@ function Sponge() {
 
 
 /*
+ * Callback to handle mouse movement.
+ */
+function documentMouseMoveHandler(event) {
+  // change document coordinates to canvas coordinates
+  mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5;
+  mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5;
+}
+
+
+/*
+ * The game loop!
+ */
+function loop() {
+  context.fillStyle = 'rgba(0,0,0,0.05)';
+  context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+  sponge.move(mouseX, mouseY);
+  sponge.draw()
+}
+
+
+/*
  * Sets everything up: creates the canvas, creates the player, starts the game
  * loop.
  */
-function init() {
+(function main() {
   // create canvas/context
   canvas = document.getElementById('world');
   if(canvas && canvas.getContext) {
     context = canvas.getContext('2d');
   }
   else {
-    // do something "real" here later...
+    // do something real here later...
     alert("OH SHIT THERE'S A HORSE IN THE HOSPITAL");
   }
 
@@ -81,30 +103,4 @@ function init() {
 
   // ~60 fps animation
   setInterval(loop, 1000 / 60);
-}
-
-
-/*
- * Callback to handle mouse movement.
- */
-function documentMouseMoveHandler(event) {
-  // change document coordinates to canvas coordinates
-  mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5;
-  mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5;
-}
-
-
-/*
- * Main game loop.
- */
-function loop() {
-  context.fillStyle = 'rgba(0,0,0,0.05)';
-  context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-
-  sponge.move(mouseX, mouseY);
-  sponge.draw()
-}
-
-
-// Run!
-init();
+})();
