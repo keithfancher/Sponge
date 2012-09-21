@@ -5,8 +5,8 @@ var SCREEN_HEIGHT = 600;
 // some useful globals (I know, I know...)
 var canvas;
 var context;
-var mouseX = (window.innerWidth - SCREEN_WIDTH);
-var mouseY = (window.innerHeight - SCREEN_HEIGHT);
+var mouseX;
+var mouseY;
 var sponge; // the player
 
 
@@ -22,6 +22,20 @@ function Sponge() {
   this.move = function(x, y) {
     this.centerX = x;
     this.centerY = y;
+
+    // don't allow player off the screen (canvas)
+    if(this.centerX + this.radius >= canvas.width) {
+      this.centerX = canvas.width - this.radius;
+    }
+    if(this.centerX - this.radius <= 0) {
+      this.centerX = this.radius;
+    }
+    if(this.centerY - this.radius <= 0) {
+      this.centerY= this.radius;
+    }
+    if(this.centerY + this.radius >= canvas.height) {
+      this.centerY = canvas.height - this.radius;
+    }
   };
 
   // draw the player to the canvas
@@ -74,6 +88,7 @@ function init() {
  * Callback to handle mouse movement.
  */
 function documentMouseMoveHandler(event) {
+  // change document coordinates to canvas coordinates
   mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5;
   mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5;
 }
