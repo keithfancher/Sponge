@@ -5,9 +5,10 @@ var SCREEN_HEIGHT = 600;
 // some useful globals (I know, I know...)
 var canvas;
 var context;
-var mouseX;
-var mouseY;
+var mouseX = SCREEN_WIDTH / 2;
+var mouseY = SCREEN_HEIGHT / 2;
 var sponge; // the player
+var line; // one enemy for now, testing
 
 
 /*
@@ -52,6 +53,33 @@ function Sponge() {
 
 
 /*
+ * The Line object. The enemy... but also your key to embiggenment!
+ */
+function Line() {
+  this.origin = 0; // a Y value, the start of the line
+  this.length = 100; // length of the line
+  this.xPos = canvas.width / 2; // horizontal position of the line
+  this.speed = 2; // duh
+  this.color = 'red';
+
+  // updates the line's position on the screen... called every frame
+  this.move = function() {
+    this.origin += this.speed;
+  };
+
+  // draws the line to the canvas
+  this.draw = function() {
+    context.beginPath();
+    context.moveTo(this.xPos, this.origin);
+    context.lineTo(this.xPos, this.origin + this.length);
+    context.strokeStyle = this.color;
+    context.lineWidth = 3;
+    context.stroke();
+  };
+}
+
+
+/*
  * Callback to handle mouse movement.
  */
 function documentMouseMoveHandler(event) {
@@ -65,11 +93,17 @@ function documentMouseMoveHandler(event) {
  * The game loop!
  */
 function loop() {
+  // use alpha to create a "fade out" effect
   context.fillStyle = 'rgba(0,0,0,0.05)';
   context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
+  // update the line's position, draw
+  line.move();
+  line.draw();
+
+  // update the player's position, draw
   sponge.move(mouseX, mouseY);
-  sponge.draw()
+  sponge.draw();
 }
 
 
@@ -99,7 +133,10 @@ function loop() {
   canvas.style.top = (window.innerHeight - SCREEN_HEIGHT) * 0.5 + 'px';
 
   // create the player object
-  sponge = new Sponge()
+  sponge = new Sponge();
+
+  // create one enemy for now
+  line = new Line();
 
   // ~60 fps animation
   setInterval(loop, 1000 / 60);
