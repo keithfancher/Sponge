@@ -62,7 +62,7 @@ function Sponge() {
  */
 function Line() {
   this.origin = 0; // a Y value, the start of the line
-  this.length = 100; // length of the line
+  this.length = randomInt(100, 300); // length of the line
   this.xPos = randomInt(0, canvas.width - 1); // X position of the line
   this.speed = 2; // how fast it moves downward
   this.color = COLORS[randomInt(0, COLORS.length - 1)]; // random color
