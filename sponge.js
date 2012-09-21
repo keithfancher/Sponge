@@ -5,6 +5,7 @@
 // some useful "constants"
 var SCREEN_WIDTH = 900;
 var SCREEN_HEIGHT = 600;
+var COLORS = ["red", "green", "blue", "yellow"];
 
 // some useful globals (I know, I know...)
 var canvas;
@@ -36,7 +37,7 @@ function Sponge() {
       this.centerX = this.radius;
     }
     if(this.centerY - this.radius <= 0) {
-      this.centerY= this.radius;
+      this.centerY = this.radius;
     }
     if(this.centerY + this.radius >= canvas.height) {
       this.centerY = canvas.height - this.radius;
@@ -63,8 +64,8 @@ function Line() {
   this.origin = 0; // a Y value, the start of the line
   this.length = 100; // length of the line
   this.xPos = canvas.width / 2; // horizontal position of the line
-  this.speed = 2; // duh
-  this.color = 'red';
+  this.speed = 2; // how fast it moves downward
+  this.color = COLORS[randomInt(0, COLORS.length - 1)]; // random color
 
   // updates the line's position on the screen... called every frame
   this.move = function() {
@@ -90,6 +91,14 @@ function documentMouseMoveHandler(event) {
   // change document coordinates to canvas coordinates
   mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5;
   mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5;
+}
+
+
+/*
+ * Returns random integer between min and max (inclusive!).
+ */
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 
