@@ -138,7 +138,7 @@ function drawLines() {
  */
 function loop() {
   // use alpha to create a "fade out" effect
-  context.fillStyle = 'rgba(0,0,0,0.05)';
+  context.fillStyle = 'rgba(0, 0, 0, 0.2)';
   context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
   // update player and enemies
