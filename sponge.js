@@ -13,7 +13,7 @@ var context;
 var mouseX = SCREEN_WIDTH / 2;
 var mouseY = SCREEN_HEIGHT / 2;
 var sponge; // the player
-var line; // one enemy for now, testing
+var lines = []; // enemies!
 
 
 /*
@@ -63,7 +63,7 @@ function Sponge() {
 function Line() {
   this.origin = 0; // a Y value, the start of the line
   this.length = 100; // length of the line
-  this.xPos = canvas.width / 2; // horizontal position of the line
+  this.xPos = randomInt(0, canvas.width - 1); // X position of the line
   this.speed = 2; // how fast it moves downward
   this.color = COLORS[randomInt(0, COLORS.length - 1)]; // random color
 
@@ -103,6 +103,37 @@ function randomInt(min, max) {
 
 
 /*
+ * Build an array of Line objects... the enemies!
+ */
+function createLines(numLines) {
+  for(var i = 0; i < numLines; i++) {
+    var tmpLine = new Line();
+    lines.push(tmpLine);
+  }
+}
+
+
+/*
+ * Update the lines in the line array.
+ */
+function updateLines() {
+  for(var i = 0; i < lines.length; i++) {
+    lines[i].move();
+  }
+}
+
+
+/*
+ * Draw the lines in the line array.
+ */
+function drawLines() {
+  for(var i = 0; i < lines.length; i++) {
+    lines[i].draw();
+  }
+}
+
+
+/*
  * The game loop!
  */
 function loop() {
@@ -110,12 +141,12 @@ function loop() {
   context.fillStyle = 'rgba(0,0,0,0.05)';
   context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
-  // update the line's position, draw
-  line.move();
-  line.draw();
-
-  // update the player's position, draw
+  // update player and enemies
   sponge.move(mouseX, mouseY);
+  updateLines();
+
+  // draw player and enemies
+  drawLines();
   sponge.draw();
 }
 
@@ -145,11 +176,9 @@ function loop() {
   canvas.style.left = (window.innerWidth - SCREEN_WIDTH) * 0.5 + 'px';
   canvas.style.top = (window.innerHeight - SCREEN_HEIGHT) * 0.5 + 'px';
 
-  // create the player object
+  // create the player and enemies
   sponge = new Sponge();
-
-  // create one enemy for now
-  line = new Line();
+  createLines(10);
 
   // ~60 fps animation
   setInterval(loop, 1000 / 60);
