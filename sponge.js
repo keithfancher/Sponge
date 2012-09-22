@@ -24,6 +24,7 @@ function Sponge() {
   this.centerY = canvas.height / 2;
   this.radius = 20;
   this.color = 'green';
+  this.glowing = false; // player glows while absorbing lines
 
   /*
    * Move the player to coordinates specified.
@@ -70,7 +71,12 @@ function Sponge() {
     context.fillStyle = this.color;
     context.fill();
     context.lineWidth = 5;
-    context.strokeStyle = '#003300';
+    if(this.glowing) {
+      context.strokeStyle = 'white';
+    }
+    else {
+      context.strokeStyle = '#003300';
+    }
     context.stroke();
   };
 }
@@ -195,7 +201,10 @@ function checkForCollisions() {
   }
 
   if(isCollision) {
-    drawText('COLLISION!', 50, 50);
+    sponge.glowing = true;
+  }
+  else {
+    sponge.glowing = false;
   }
 }
 
