@@ -184,11 +184,13 @@ function maybeSpawnNewLine() {
 function checkForCollisions() {
   var isCollision = false;
 
-  // Loop through every enemy on the screen, checking for collisions. To start
-  // with, we'll just check the enemy's origin rather than the whole line.
+  // loop through every enemy on the screen, checking for collisions
   for(var i = 0; i < lines.length; i++) {
-    if(sponge.pointCollides(lines[i].xPos, lines[i].origin)) {
-      isCollision = true;
+    // check each point along the line, from the origin to origin + length
+    for(var j = lines[i].origin; j < (lines[i].origin + lines[i].length); j++) {
+      if(sponge.pointCollides(lines[i].xPos, j)) {
+        isCollision = true;
+      }
     }
   }
 
