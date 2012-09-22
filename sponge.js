@@ -218,12 +218,12 @@ function loop() {
   sponge.move(mouseX, mouseY);
   updateLines();
 
-  // check for collisions!
-  checkForCollisions();
-
   // draw player and enemies
   drawLines();
   sponge.draw();
+
+  // check for collisions!
+  checkForCollisions();
 }
 
 
