@@ -197,9 +197,6 @@ function checkForCollisions() {
   if(isCollision) {
     drawText('COLLISION!', 50, 50);
   }
-  else {
-    drawText('NO COLLISION', 50, 50);
-  }
 }
 
 
