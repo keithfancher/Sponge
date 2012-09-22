@@ -1,11 +1,11 @@
 // we like it STRICT, baby
-"use strict";
+'use strict';
 
 
 // some useful "constants"
 var SCREEN_WIDTH = 900;
 var SCREEN_HEIGHT = 600;
-var COLORS = ["red", "green", "blue", "yellow"];
+var COLORS = ['red', 'green', 'blue', 'yellow'];
 
 // some useful globals (I know, I know...)
 var canvas;
@@ -23,6 +23,7 @@ function Sponge() {
   this.centerX = canvas.width / 2;
   this.centerY = canvas.height / 2;
   this.radius = 20;
+  this.color = 'green';
 
   // moves the player to coordinates specified
   this.move = function(x, y) {
@@ -48,7 +49,7 @@ function Sponge() {
   this.draw = function() {
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
-    context.fillStyle = 'green';
+    context.fillStyle = this.color;
     context.fill();
     context.lineWidth = 5;
     context.strokeStyle = '#003300';
