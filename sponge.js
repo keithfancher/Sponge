@@ -61,8 +61,8 @@ function Sponge() {
  * The Line object. The enemy... but also your key to embiggenment!
  */
 function Line() {
-  this.origin = 0; // a Y value, the start of the line
   this.length = randomInt(100, 300); // length of the line
+  this.origin = 0 - this.length; // a Y value, the start of the line
   this.xPos = randomInt(0, canvas.width - 1); // X position of the line
   this.speed = 2; // how fast it moves downward
   this.color = COLORS[randomInt(0, COLORS.length - 1)]; // random color
@@ -134,12 +134,27 @@ function drawLines() {
 
 
 /*
+ * Spawn a new enemy... maybe!
+ */
+function maybeSpawnNewLine() {
+  // make this value variable later, more enemies will spawn as game progresses
+  if(Math.random() < 0.04) {
+    var tmpLine = new Line();
+    lines.push(tmpLine);
+  }
+}
+
+
+/*
  * The game loop!
  */
 function loop() {
   // use alpha to create a "fade out" effect
   context.fillStyle = 'rgba(0, 0, 0, 0.2)';
   context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+  // spawn new enemies every once in a while
+  maybeSpawnNewLine();
 
   // update player and enemies
   sponge.move(mouseX, mouseY);
