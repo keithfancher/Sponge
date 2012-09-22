@@ -17,7 +17,7 @@ var lines = []; // enemies!
 
 
 /*
- * The Sponge object -- essentially the "player" of the game.
+ * The Sponge object -- the player of the game!
  */
 function Sponge() {
   this.centerX = canvas.width / 2;
@@ -25,7 +25,9 @@ function Sponge() {
   this.radius = 20;
   this.color = 'green';
 
-  // moves the player to coordinates specified
+  /*
+   * Move the player to coordinates specified.
+   */
   this.move = function(x, y) {
     this.centerX = x;
     this.centerY = y;
@@ -45,7 +47,23 @@ function Sponge() {
     }
   };
 
-  // draw the player to the canvas
+  /*
+   * Check if a given point is within the bounds of the circle that makes up
+   * the player. Returns true or false.
+   */
+  this.pointCollides = function(x, y) {
+    // Thanks, Pythagoras!
+    if(Math.pow(x - this.centerX, 2) + Math.pow(y - this.centerY, 2) < Math.pow(this.radius, 2)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  };
+
+  /*
+   * Draw the player to the canvas.
+   */
   this.draw = function() {
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
@@ -68,12 +86,16 @@ function Line() {
   this.speed = 2; // how fast it moves downward
   this.color = COLORS[randomInt(0, COLORS.length - 1)]; // random color
 
-  // updates the line's position on the screen... called every frame
+  /*
+   * Update the line's position on the screen... called every frame.
+   */
   this.move = function() {
     this.origin += this.speed;
   };
 
-  // draws the line to the canvas
+  /*
+   * Draw the line to the canvas.
+   */
   this.draw = function() {
     context.beginPath();
     context.moveTo(this.xPos, this.origin);
@@ -92,6 +114,16 @@ function documentMouseMoveHandler(event) {
   // change document coordinates to canvas coordinates
   mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5;
   mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5;
+}
+
+
+/*
+ * Draw text to the canvas.
+ */
+function drawText(text, x, y) {
+  context.font = '20px Arial';
+  context.fillStyle = 'yellow';
+  context.fillText(text, x, y);
 }
 
 
@@ -147,6 +179,29 @@ function maybeSpawnNewLine() {
 
 
 /*
+ * Check for collisions between lines and player.
+ */
+function checkForCollisions() {
+  var isCollision = false;
+
+  // Loop through every enemy on the screen, checking for collisions. To start
+  // with, we'll just check the enemy's origin rather than the whole line.
+  for(var i = 0; i < lines.length; i++) {
+    if(sponge.pointCollides(lines[i].xPos, lines[i].origin)) {
+      isCollision = true;
+    }
+  }
+
+  if(isCollision) {
+    drawText('COLLISION!', 50, 50);
+  }
+  else {
+    drawText('NO COLLISION', 50, 50);
+  }
+}
+
+
+/*
  * The game loop!
  */
 function loop() {
@@ -161,6 +216,9 @@ function loop() {
   sponge.move(mouseX, mouseY);
   updateLines();
 
+  // check for collisions!
+  checkForCollisions();
+
   // draw player and enemies
   drawLines();
   sponge.draw();
@@ -168,7 +226,7 @@ function loop() {
 
 
 /*
- * Sets everything up: creates the canvas, creates the player, starts the game
+ * Set everything up: creates the canvas, creates the player, starts the game
  * loop.
  */
 (function main() {
