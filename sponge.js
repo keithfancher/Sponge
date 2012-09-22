@@ -5,7 +5,11 @@
 // some useful "constants"
 var SCREEN_WIDTH = 900;
 var SCREEN_HEIGHT = 600;
-var COLORS = ['red', 'green', 'blue', 'yellow'];
+var COLORS = ['purple', 'green', 'blue', 'yellow']; // enemy colors
+var ABSORBING_GOOD = 'white'; // player absorbing same color
+var ABSORBING_BAD = 'red'; // player absorbing other color
+var ABSORBING_NONE = '#003300'; // absorbing nothing!
+
 
 // some useful globals (I know, I know...)
 var canvas;
@@ -24,7 +28,7 @@ function Sponge() {
   this.centerY = canvas.height / 2;
   this.radius = 20;
   this.color = 'green';
-  this.glowing = false; // player glows while absorbing lines
+  this.glowColor = ABSORBING_NONE; // player glows while absorbing lines
 
   /*
    * Move the player to coordinates specified.
@@ -71,12 +75,7 @@ function Sponge() {
     context.fillStyle = this.color;
     context.fill();
     context.lineWidth = 5;
-    if(this.glowing) {
-      context.strokeStyle = 'white';
-    }
-    else {
-      context.strokeStyle = '#003300';
-    }
+    context.strokeStyle = this.glowColor;
     context.stroke();
   };
 }
@@ -189,6 +188,7 @@ function maybeSpawnNewLine() {
  */
 function checkForCollisions() {
   var isCollision = false;
+  var isAbsorbing = false;
 
   // loop through every enemy on the screen, checking for collisions
   for(var i = 0; i < lines.length; i++) {
@@ -196,15 +196,24 @@ function checkForCollisions() {
     for(var j = lines[i].origin; j < (lines[i].origin + lines[i].length); j++) {
       if(sponge.pointCollides(lines[i].xPos, j)) {
         isCollision = true;
+        // same color, player absorbs it
+        if(sponge.color === lines[i].color) {
+          isAbsorbing = true;
+        }
       }
     }
   }
 
   if(isCollision) {
-    sponge.glowing = true;
+    if(isAbsorbing) {
+      sponge.glowColor = ABSORBING_GOOD;
+    }
+    else {
+      sponge.glowColor = ABSORBING_BAD;
+    }
   }
   else {
-    sponge.glowing = false;
+    sponge.glowColor = ABSORBING_NONE;
   }
 }
 
