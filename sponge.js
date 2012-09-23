@@ -68,8 +68,7 @@ function Game() {
    */
   this.initEnemies = function(num) {
     for(var i = 0; i < num; i++) {
-      var tmpLine = new Line();
-      this.lines.push(tmpLine);
+      this.lines.push(new Line());
     }
   };
 
@@ -98,8 +97,7 @@ function Game() {
     // make this value variable later, more enemies will spawn as game
     // progresses
     if(Math.random() < 0.04) {
-      var tmpLine = new Line();
-      this.lines.push(tmpLine);
+      this.lines.push(new Line());
     }
   };
 
