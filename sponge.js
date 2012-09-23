@@ -163,13 +163,13 @@ function Game() {
     this.sponge.move(this.mouseX, this.mouseY);
     this.updateEnemies();
 
+    // check for collisions!
+    this.checkForCollisions();
+
     // draw barrier, player and enemies
     this.drawBarrierLine();
     this.drawEnemies();
     this.sponge.draw(this.context);
-
-    // check for collisions!
-    this.checkForCollisions();
   };
 
   /*
