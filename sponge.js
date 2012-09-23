@@ -5,6 +5,7 @@
 // some useful "constants"
 var SCREEN_WIDTH = 900;
 var SCREEN_HEIGHT = 600;
+var FPS = 60; // shoot for 60 fps animation
 var COLORS = ['purple', 'green', 'blue', 'yellow']; // enemy colors
 var ABSORBING_GOOD = 'white'; // player absorbing same color
 var ABSORBING_BAD = 'red'; // player absorbing other color
@@ -12,22 +13,186 @@ var ABSORBING_NONE = '#003300'; // absorbing nothing!
 var BARRIER_POSITION = SCREEN_HEIGHT - 150; // upper bound of player's movement
 
 
-// some useful globals (I know, I know...)
-var canvas;
-var context;
-var mouseX = SCREEN_WIDTH / 2;
-var mouseY = SCREEN_HEIGHT / 2;
-var sponge; // the player
-var lines = []; // enemies!
+/*
+ * The Game object. This is the big banana! Contains much of the game's state,
+ * logic, &c. Also useful to keep all this nonsense out of the global
+ * namespace...
+ */
+function Game() {
+  this.canvas;
+  this.context;
+  this.mouseX = SCREEN_WIDTH / 2;
+  this.mouseY = SCREEN_HEIGHT / 2;
+  this.sponge = new Sponge(); // the player
+  this.lines = []; // enemies!
+
+  /*
+   * Set up canvas and context.
+   */
+  this.initCanvas = function() {
+    this.canvas = document.getElementById('world');
+    if(this.canvas && this.canvas.getContext) {
+      this.context = this.canvas.getContext('2d');
+    }
+    else {
+      // do something real here later...
+      alert("OH SHIT THERE'S A HORSE IN THE HOSPITAL");
+    }
+
+    this.canvas.width = SCREEN_WIDTH;
+    this.canvas.height = SCREEN_HEIGHT;
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.left = (window.innerWidth - SCREEN_WIDTH) * 0.5 + 'px';
+    this.canvas.style.top = (window.innerHeight - SCREEN_HEIGHT) * 0.5 + 'px';
+  };
+
+  /*
+   * Callback to handle mouse movement.
+   */
+  this.mouseMoveHandler = function(event) {
+    // change document coordinates to canvas coordinates
+    this.mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5;
+    this.mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5;
+  };
+
+  /*
+   * Set up event listener(s).
+   */
+  this.initListeners = function() {
+    var that = this;
+    document.addEventListener('mousemove', function(event){that.mouseMoveHandler(event);});
+  };
+
+  /*
+   * Create an initial number of enemies in the game.
+   */
+  this.initEnemies = function(num) {
+    for(var i = 0; i < num; i++) {
+      var tmpLine = new Line();
+      this.lines.push(tmpLine);
+    }
+  };
+
+  /*
+   * Update the positions of the game's enemies... called every frame.
+   */
+  this.updateEnemies = function() {
+    for(var i = 0; i < this.lines.length; i++) {
+      this.lines[i].move();
+    }
+  };
+
+  /*
+   * Draw all the enemies in the lines array.
+   */
+  this.drawEnemies = function() {
+    for(var i = 0; i < this.lines.length; i++) {
+      this.lines[i].draw(this.context);
+    }
+  };
+
+  /*
+   * Spawn a new enemy... maybe!
+   */
+  this.maybeSpawnNewEnemy = function() {
+    // make this value variable later, more enemies will spawn as game
+    // progresses
+    if(Math.random() < 0.04) {
+      var tmpLine = new Line();
+      this.lines.push(tmpLine);
+    }
+  };
+
+  /*
+   * Check for collisions between player and enemies, updates player status
+   * accordingly.
+   */
+  this.checkForCollisions = function() {
+    var isCollision = false;
+    var isAbsorbing = false;
+
+    // loop through every enemy on the screen, checking for collisions
+    for(var i = 0; i < this.lines.length; i++) {
+      // check each point along the line, from the origin to origin + length
+      for(var j = this.lines[i].origin; j < (this.lines[i].origin + this.lines[i].length); j++) {
+        if(this.sponge.pointCollides(this.lines[i].xPos, j)) {
+          isCollision = true;
+          // same color, player absorbs it
+          if(this.sponge.color === this.lines[i].color) {
+            isAbsorbing = true;
+          }
+        }
+      }
+    }
+
+    if(isCollision) {
+      if(isAbsorbing) {
+        this.sponge.glowColor = ABSORBING_GOOD;
+      }
+      else {
+        this.sponge.glowColor = ABSORBING_BAD;
+      }
+    }
+    else {
+      this.sponge.glowColor = ABSORBING_NONE;
+    }
+  };
+
+  /*
+   * Draw barrier line!
+   */
+  this.drawBarrierLine = function() {
+    this.context.beginPath();
+    this.context.moveTo(0, BARRIER_POSITION - 5); // account for line
+    this.context.lineTo(SCREEN_WIDTH, BARRIER_POSITION - 5); // same here
+    this.context.strokeStyle = 'white';
+    this.context.lineWidth = 5;
+    this.context.stroke();
+  };
+
+  /*
+   * Main event loop, called every frame.
+   */
+  this.mainLoop = function() {
+    // use alpha to create a "fade out" effect
+    this.context.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    this.context.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    // spawn new enemies every once in a while
+    this.maybeSpawnNewEnemy();
+
+    // update player and enemies
+    this.sponge.move(this.mouseX, this.mouseY);
+    this.updateEnemies();
+
+    // draw barrier, player and enemies
+    this.drawBarrierLine();
+    this.drawEnemies();
+    this.sponge.draw(this.context);
+
+    // check for collisions!
+    this.checkForCollisions();
+  };
+
+  /*
+   * Set the magic in motion!
+   */
+  this.start = function() {
+    // This wonkiness is necessary since "this" gets reset to the window object
+    // when setInterval is called. Thanks, JavaScript!
+    var that = this;
+    setInterval(function() {that.mainLoop();}, 1000 / FPS);
+  };
+}
 
 
 /*
  * The Sponge object -- the player of the game!
  */
 function Sponge() {
-  this.centerX = canvas.width / 2;
-  this.centerY = canvas.height / 2;
   this.radius = 20;
+  this.centerX = SCREEN_WIDTH / 2;
+  this.centerY = SCREEN_HEIGHT - this.radius;
   this.color = 'green';
   this.glowColor = ABSORBING_NONE; // player glows while absorbing lines
 
@@ -38,9 +203,9 @@ function Sponge() {
     this.centerX = x;
     this.centerY = y;
 
-    // don't allow player off the screen (canvas) or past barrier
-    if(this.centerX + this.radius >= canvas.width) {
-      this.centerX = canvas.width - this.radius;
+    // don't allow player off the screen or past barrier
+    if(this.centerX + this.radius >= SCREEN_WIDTH) {
+      this.centerX = SCREEN_WIDTH - this.radius;
     }
     if(this.centerX - this.radius <= 0) {
       this.centerX = this.radius;
@@ -48,8 +213,8 @@ function Sponge() {
     if(this.centerY - this.radius <= BARRIER_POSITION) {
       this.centerY = BARRIER_POSITION + this.radius;
     }
-    if(this.centerY + this.radius >= canvas.height) {
-      this.centerY = canvas.height - this.radius;
+    if(this.centerY + this.radius >= SCREEN_HEIGHT) {
+      this.centerY = SCREEN_HEIGHT - this.radius;
     }
   };
 
@@ -68,9 +233,9 @@ function Sponge() {
   };
 
   /*
-   * Draw the player to the canvas.
+   * Draw the player to the given context.
    */
-  this.draw = function() {
+  this.draw = function(context) {
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
     context.fillStyle = this.color;
@@ -88,7 +253,7 @@ function Sponge() {
 function Line() {
   this.length = randomInt(100, 300); // length of the line
   this.origin = 0 - this.length; // a Y value, the start of the line
-  this.xPos = randomInt(0, canvas.width - 1); // X position of the line
+  this.xPos = randomInt(0, SCREEN_WIDTH - 1); // X position of the line
   this.speed = 2; // how fast it moves downward
   this.color = COLORS[randomInt(0, COLORS.length - 1)]; // random color
 
@@ -100,9 +265,9 @@ function Line() {
   };
 
   /*
-   * Draw the line to the canvas.
+   * Draw the line to the given context.
    */
-  this.draw = function() {
+  this.draw = function(context) {
     context.beginPath();
     context.moveTo(this.xPos, this.origin);
     context.lineTo(this.xPos, this.origin + this.length);
@@ -114,19 +279,9 @@ function Line() {
 
 
 /*
- * Callback to handle mouse movement.
+ * Draw text to the given context.
  */
-function documentMouseMoveHandler(event) {
-  // change document coordinates to canvas coordinates
-  mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * 0.5;
-  mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * 0.5;
-}
-
-
-/*
- * Draw text to the canvas.
- */
-function drawText(text, x, y) {
+function drawText(text, context, x, y) {
   context.font = '20px Arial';
   context.fillStyle = 'yellow';
   context.fillText(text, x, y);
@@ -142,152 +297,13 @@ function randomInt(min, max) {
 
 
 /*
- * Draw barrier the keeps player on lower part of the screen.
- */
-function drawBarrierLine() {
-  context.beginPath();
-  context.moveTo(0, BARRIER_POSITION - 5); // account for line width here...
-  context.lineTo(canvas.width, BARRIER_POSITION - 5); // ...and here
-  context.strokeStyle = 'white';
-  context.lineWidth = 5;
-  context.stroke();
-}
-
-
-/*
- * Build an array of Line objects... the enemies!
- */
-function createLines(numLines) {
-  for(var i = 0; i < numLines; i++) {
-    var tmpLine = new Line();
-    lines.push(tmpLine);
-  }
-}
-
-
-/*
- * Update the lines in the line array.
- */
-function updateLines() {
-  for(var i = 0; i < lines.length; i++) {
-    lines[i].move();
-  }
-}
-
-
-/*
- * Draw the lines in the line array.
- */
-function drawLines() {
-  for(var i = 0; i < lines.length; i++) {
-    lines[i].draw();
-  }
-}
-
-
-/*
- * Spawn a new enemy... maybe!
- */
-function maybeSpawnNewLine() {
-  // make this value variable later, more enemies will spawn as game progresses
-  if(Math.random() < 0.04) {
-    var tmpLine = new Line();
-    lines.push(tmpLine);
-  }
-}
-
-
-/*
- * Check for collisions between lines and player.
- */
-function checkForCollisions() {
-  var isCollision = false;
-  var isAbsorbing = false;
-
-  // loop through every enemy on the screen, checking for collisions
-  for(var i = 0; i < lines.length; i++) {
-    // check each point along the line, from the origin to origin + length
-    for(var j = lines[i].origin; j < (lines[i].origin + lines[i].length); j++) {
-      if(sponge.pointCollides(lines[i].xPos, j)) {
-        isCollision = true;
-        // same color, player absorbs it
-        if(sponge.color === lines[i].color) {
-          isAbsorbing = true;
-        }
-      }
-    }
-  }
-
-  if(isCollision) {
-    if(isAbsorbing) {
-      sponge.glowColor = ABSORBING_GOOD;
-    }
-    else {
-      sponge.glowColor = ABSORBING_BAD;
-    }
-  }
-  else {
-    sponge.glowColor = ABSORBING_NONE;
-  }
-}
-
-
-/*
- * The game loop!
- */
-function loop() {
-  // use alpha to create a "fade out" effect
-  context.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-
-  // spawn new enemies every once in a while
-  maybeSpawnNewLine();
-
-  // update player and enemies
-  sponge.move(mouseX, mouseY);
-  updateLines();
-
-  // draw barrier
-  drawBarrierLine();
-
-  // draw player and enemies
-  drawLines();
-  sponge.draw();
-
-  // check for collisions!
-  checkForCollisions();
-}
-
-
-/*
  * Set everything up: creates the canvas, creates the player, starts the game
  * loop.
  */
 (function main() {
-  // create canvas/context
-  canvas = document.getElementById('world');
-  if(canvas && canvas.getContext) {
-    context = canvas.getContext('2d');
-  }
-  else {
-    // do something real here later...
-    alert("OH SHIT THERE'S A HORSE IN THE HOSPITAL");
-  }
-
-  // event listener(s)
-  document.addEventListener('mousemove', documentMouseMoveHandler, false);
-
-  // set up canvas
-  canvas.width = SCREEN_WIDTH;
-  canvas.height = SCREEN_HEIGHT;
-  canvas.style.position = 'absolute';
-  canvas.style.left = (window.innerWidth - SCREEN_WIDTH) * 0.5 + 'px';
-  canvas.style.top = (window.innerHeight - SCREEN_HEIGHT) * 0.5 + 'px';
-
-  // create the player and enemies
-  sponge = new Sponge();
-  createLines(10);
-
-  // ~60 fps animation
-  setInterval(loop, 1000 / 60);
+  var game = new Game();
+  game.initCanvas();
+  game.initListeners();
+  game.initEnemies(10); // 10 initial enemies
+  game.start();
 })();
