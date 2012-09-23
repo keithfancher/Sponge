@@ -9,6 +9,7 @@ var COLORS = ['purple', 'green', 'blue', 'yellow']; // enemy colors
 var ABSORBING_GOOD = 'white'; // player absorbing same color
 var ABSORBING_BAD = 'red'; // player absorbing other color
 var ABSORBING_NONE = '#003300'; // absorbing nothing!
+var BARRIER_POSITION = SCREEN_HEIGHT - 150; // upper bound of player's movement
 
 
 // some useful globals (I know, I know...)
@@ -37,15 +38,15 @@ function Sponge() {
     this.centerX = x;
     this.centerY = y;
 
-    // don't allow player off the screen (canvas)
+    // don't allow player off the screen (canvas) or past barrier
     if(this.centerX + this.radius >= canvas.width) {
       this.centerX = canvas.width - this.radius;
     }
     if(this.centerX - this.radius <= 0) {
       this.centerX = this.radius;
     }
-    if(this.centerY - this.radius <= 0) {
-      this.centerY = this.radius;
+    if(this.centerY - this.radius <= BARRIER_POSITION) {
+      this.centerY = BARRIER_POSITION + this.radius;
     }
     if(this.centerY + this.radius >= canvas.height) {
       this.centerY = canvas.height - this.radius;
@@ -133,10 +134,23 @@ function drawText(text, x, y) {
 
 
 /*
- * Returns random integer between min and max (inclusive!).
+ * Return random integer between min and max (inclusive!).
  */
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+/*
+ * Draw barrier the keeps player on lower part of the screen.
+ */
+function drawBarrierLine() {
+  context.beginPath();
+  context.moveTo(0, BARRIER_POSITION - 5); // account for line width here...
+  context.lineTo(canvas.width, BARRIER_POSITION - 5); // ...and here
+  context.strokeStyle = 'white';
+  context.lineWidth = 5;
+  context.stroke();
 }
 
 
@@ -232,6 +246,9 @@ function loop() {
   // update player and enemies
   sponge.move(mouseX, mouseY);
   updateLines();
+
+  // draw barrier
+  drawBarrierLine();
 
   // draw player and enemies
   drawLines();
