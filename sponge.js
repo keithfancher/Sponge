@@ -74,7 +74,7 @@ function Sponge() {
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
     context.fillStyle = this.color;
     context.fill();
-    context.lineWidth = 5;
+    context.lineWidth = 3;
     context.strokeStyle = this.glowColor;
     context.stroke();
   };
