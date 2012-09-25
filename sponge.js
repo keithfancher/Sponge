@@ -8,10 +8,10 @@
   var SCREEN_WIDTH = 900;
   var SCREEN_HEIGHT = 600;
   var FPS = 60; // shoot for 60 fps animation
-  var COLORS = ['purple', 'green', 'blue', 'yellow']; // enemy colors
+  var COLORS = ['magenta', 'green', 'blue', 'yellow'];
+  var DARK_COLORS = ['purple', '#003300', 'darkblue', 'goldenrod'];
   var ABSORBING_GOOD = 'white'; // player absorbing same color
   var ABSORBING_BAD = 'red'; // player absorbing other color
-  var ABSORBING_NONE = '#003300'; // absorbing nothing!
   var MIN_PLAYER_RADIUS = 5; // as small as the player can get
   var MAX_PLAYER_RADIUS = 70; // as small as the player can get
   var BARRIER_POSITION = SCREEN_HEIGHT - 150; // upper bound of player movement
@@ -133,7 +133,7 @@
         if(this.sponge.pointCollides(this.lines[i].xPos, j)) {
           isCollision = true;
           // same color, player absorbs it
-          if(this.sponge.color === this.lines[i].color) {
+          if(COLORS[this.sponge.color] === this.lines[i].color) {
             isAbsorbing = true;
           }
         }
@@ -152,7 +152,7 @@
       }
     }
     else {
-      this.sponge.glowColor = ABSORBING_NONE;
+      this.sponge.glowColor = DARK_COLORS[this.sponge.color];
     }
   };
 
@@ -217,8 +217,8 @@
     this.radius = 20;
     this.centerX = SCREEN_WIDTH / 2;
     this.centerY = SCREEN_HEIGHT - this.radius;
-    this.color = 'green';
-    this.glowColor = ABSORBING_NONE; // player glows while absorbing lines
+    this.color = randomInt(0, COLORS.length - 1); // random color (index!)
+    this.glowColor = DARK_COLORS[this.color]; // "halo" color
     this.fillMeter = 0; // how much has the player absorbed? (0 - 100)
     this.score = 0;
     this.multiplier = 1; // score multiplier
@@ -295,7 +295,7 @@
   Sponge.prototype.draw = function(context) {
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
-    context.fillStyle = this.color;
+    context.fillStyle = COLORS[this.color];
     context.fill();
     context.lineWidth = 3;
     context.strokeStyle = this.glowColor;
@@ -308,7 +308,7 @@
     }
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, endAngle, false);
-    context.fillStyle = ABSORBING_NONE;
+    context.fillStyle = DARK_COLORS[this.color];
     context.fill();
   };
 
