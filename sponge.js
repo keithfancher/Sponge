@@ -278,16 +278,6 @@
 
 
   /*
-   * Draw text to the given context.
-   */
-  function drawText(text, context, x, y) {
-    context.font = '20px Arial';
-    context.fillStyle = 'yellow';
-    context.fillText(text, x, y);
-  }
-
-
-  /*
    * Return random integer between min and max (inclusive!).
    */
   function randomInt(min, max) {
