@@ -144,6 +144,7 @@
       if(isAbsorbing) {
         this.sponge.glowColor = ABSORBING_GOOD;
         this.sponge.fillMeter++;
+        this.sponge.score = roundToTenth(this.sponge.score + this.sponge.multiplier);
       }
       else {
         this.sponge.glowColor = ABSORBING_BAD;
