@@ -12,6 +12,8 @@
   var ABSORBING_GOOD = 'white'; // player absorbing same color
   var ABSORBING_BAD = 'red'; // player absorbing other color
   var ABSORBING_NONE = '#003300'; // absorbing nothing!
+  var MIN_PLAYER_RADIUS = 5; // as small as the player can get
+  var MAX_PLAYER_RADIUS = 70; // as small as the player can get
   var BARRIER_POSITION = SCREEN_HEIGHT - 150; // upper bound of player movement
 
 
@@ -141,9 +143,11 @@
     if(isCollision) {
       if(isAbsorbing) {
         this.sponge.glowColor = ABSORBING_GOOD;
+        this.sponge.fillMeter++;
       }
       else {
         this.sponge.glowColor = ABSORBING_BAD;
+        this.sponge.fillMeter--;
       }
     }
     else {
@@ -176,6 +180,7 @@
 
     // update player and enemies
     this.sponge.move(this.mouseX, this.mouseY);
+    this.sponge.update();
     this.updateEnemies();
 
     // check for collisions!
@@ -207,7 +212,35 @@
     this.centerY = SCREEN_HEIGHT - this.radius;
     this.color = 'green';
     this.glowColor = ABSORBING_NONE; // player glows while absorbing lines
+    this.fillMeter = 0; // how much has the player absorbed? (0 - 100)
   }
+
+  /*
+   * Update the player's state, check if it's time to grow!
+   */
+  Sponge.prototype.update = function() {
+    // If it's time to grow, then grow! will also raise score mult here later.
+    if(this.fillMeter >= 100) {
+      if(this.radius < MAX_PLAYER_RADIUS) {
+        this.radius += 5;
+        this.fillMeter = 0;
+      }
+      else {
+        this.fillMeter = 99;
+      }
+    }
+
+    // shrink...
+    if(this.fillMeter < 0) {
+      if(this.radius > MIN_PLAYER_RADIUS) {
+        this.radius -= 5;
+        this.fillMeter = 99;
+      }
+      else {
+        this.fillMeter = 0;
+      }
+    }
+  };
 
   /*
    * Move the player to coordinates specified.
@@ -256,6 +289,16 @@
     context.lineWidth = 3;
     context.strokeStyle = this.glowColor;
     context.stroke();
+
+    // fill in the circle to show how close to growing
+    var endAngle = (2 * Math.PI * this.fillMeter) / 100;
+    if(endAngle < 0) {
+      endAngle = 0; // negative angles cause circle to fill back up!
+    }
+    context.beginPath();
+    context.arc(this.centerX, this.centerY, this.radius, 0, endAngle, false);
+    context.fillStyle = ABSORBING_NONE;
+    context.fill();
   };
 
 
