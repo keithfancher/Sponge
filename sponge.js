@@ -190,6 +190,12 @@
     this.drawEnemies();
     this.sponge.draw(this.context);
     this.drawBarrierLine();
+    
+    // draw score multiplier and score
+    var scoreString = 'SCORE: ' + this.sponge.score.toString();
+    drawText(this.context, scoreString, 10, 20, '15px', 'white');
+    var multString = 'MULT x ' + this.sponge.multiplier.toString();
+    drawText(this.context, multString, 10, 40, '15px', 'white');
   };
 
   /*
@@ -213,6 +219,8 @@
     this.color = 'green';
     this.glowColor = ABSORBING_NONE; // player glows while absorbing lines
     this.fillMeter = 0; // how much has the player absorbed? (0 - 100)
+    this.score = 0;
+    this.multiplier = 1; // score multiplier
   }
 
   /*
@@ -224,6 +232,7 @@
       if(this.radius < MAX_PLAYER_RADIUS) {
         this.radius += 5;
         this.fillMeter = 0;
+        this.multiplier = roundToTenth(this.multiplier + 0.1);
       }
       else {
         this.fillMeter = 99;
@@ -235,6 +244,7 @@
       if(this.radius > MIN_PLAYER_RADIUS) {
         this.radius -= 5;
         this.fillMeter = 99;
+        this.multiplier = roundToTenth(this.multiplier - 0.1);
       }
       else {
         this.fillMeter = 0;
@@ -334,10 +344,29 @@
 
 
   /*
+   * Draws text with given specs to given context.
+   */
+  function drawText(context, text, x, y, size, color) {
+    context.font = size + ' courier';
+    context.fillStyle = color;
+    context.fillText(text, x, y);
+  }
+
+
+  /*
    * Return random integer between min and max (inclusive!).
    */
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+
+  /*
+   * Round given value to nearest tenth... necessary since adding and
+   * subtracting 0.1 seems to be occasionally imprecise.
+   */
+  function roundToTenth(num) {
+    return Math.round(num * 10) / 10;
   }
 
 
