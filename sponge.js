@@ -20,31 +20,30 @@
    * state, logic, &c.
    */
   function Game() {
-    this.canvas;
-    this.context;
+    this.canvas = {};
+    this.context = {};
     this.mouseX = SCREEN_WIDTH / 2;
     this.mouseY = SCREEN_HEIGHT / 2;
     this.sponge = new Sponge(); // the player
     this.lines = []; // enemies!
 
     /*
-     * Set up canvas and context.
+     * Set up canvas and context. Returns true if successful, false otherwise.
      */
     this.initCanvas = function() {
       this.canvas = document.getElementById('world');
       if(this.canvas && this.canvas.getContext) {
         this.context = this.canvas.getContext('2d');
+        this.canvas.width = SCREEN_WIDTH;
+        this.canvas.height = SCREEN_HEIGHT;
+        this.canvas.style.position = 'absolute';
+        this.canvas.style.left = (window.innerWidth - SCREEN_WIDTH) * 0.5+'px';
+        this.canvas.style.top = (window.innerHeight - SCREEN_HEIGHT) * 0.5+'px';
+        return true;
       }
       else {
-        // do something real here later...
-        alert("OH SHIT THERE'S A HORSE IN THE HOSPITAL");
+        return false;
       }
-
-      this.canvas.width = SCREEN_WIDTH;
-      this.canvas.height = SCREEN_HEIGHT;
-      this.canvas.style.position = 'absolute';
-      this.canvas.style.left = (window.innerWidth - SCREEN_WIDTH) * 0.5 + 'px';
-      this.canvas.style.top = (window.innerHeight - SCREEN_HEIGHT) * 0.5 + 'px';
     };
 
     /*
@@ -291,10 +290,15 @@
    */
   (function main() {
     var game = new Game();
-    game.initCanvas();
-    game.initListeners();
-    game.initEnemies(10); // 10 initial enemies
-    game.start();
+    if(game.initCanvas()) {
+      game.initListeners();
+      game.initEnemies(10); // 10 initial enemies
+      game.start();
+    }
+    else {
+      // something better later!
+      alert("OH SHIT THERE'S A HORSE IN THE HOSPITAL");
+    }
   })();
 
 })();
