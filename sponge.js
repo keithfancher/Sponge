@@ -77,8 +77,22 @@
    * Update the positions of the game's enemies... called every frame.
    */
   Game.prototype.updateEnemies = function() {
+    var killList = []; // array of indices, offscreen lines to destroy
+
+    // move each line down and check if it's offscreen yet
     for(var i = 0; i < this.lines.length; i++) {
       this.lines[i].move();
+
+      // If the line is off the screen, add to kill list. (We can't just
+      // destroy it here because that would fuck up array indexing.)
+      if(this.lines[i].origin > SCREEN_HEIGHT) {
+        killList.push(i);
+      }
+    }
+
+    // kill the marked lines!
+    for(var i = 0; i < killList.length; i++) {
+      this.lines.splice(killList[i], 1);
     }
   };
 
