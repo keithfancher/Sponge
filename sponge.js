@@ -187,9 +187,9 @@
     this.checkForCollisions();
 
     // draw barrier, player and enemies
-    this.drawBarrierLine();
     this.drawEnemies();
     this.sponge.draw(this.context);
+    this.drawBarrierLine();
   };
 
   /*
