@@ -1,0 +1,31 @@
+SPONGE
+======
+
+Some experiments with Canvas and JavaScript, loosely taking the form of a game.
+
+
+REQUIREMENTS
+------------
+* A modern web browser with...
+* JavaScript enabled
+
+
+HOW DO I PLAY?
+--------------
+Well, the gameplay is still evolving. At the moment, you are a blob of color
+(the titular "sponge"). You can move around with the mouse, but you're limited
+to the lower chunk of the screen. Colored lines fall from the "sky." To gain
+points, absorb lines that are the same color as you. As you absorb more, you'll
+notice yourself "filling up" -- once you're full, you'll grow in diameter and
+your score multiplier will be increased!  Rinse and repeat... FOR ETERNITY. (Or
+until you get bored -- you can't die yet.)
+
+
+WILL IT GET BETTER?
+-------------------
+Probably!
+
+
+WHAT ELSE ARE YOU PLANNING TO ADD?
+----------------------------------
+A lot!
