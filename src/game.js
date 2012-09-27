@@ -3,11 +3,13 @@
 
   /*
    * The Game object. This is the big banana! Contains much of the game's
-   * state, logic, &c.
+   * state, logic, &c. Pass it the id of your canvas, run its init() functions,
+   * start() it up, and stand back!
    */
-  s.Game = function() {
+  s.Game = function(canvasId) {
     this.canvas = {};
     this.context = {};
+    this.canvasId = canvasId; // id of the canvas element
     this.mouseX = s.SCREEN_WIDTH / 2;
     this.mouseY = s.SCREEN_HEIGHT / 2;
     this.sponge = new s.Sponge(); // the player
@@ -19,7 +21,7 @@
    * Set up canvas and context. Returns true if successful, false otherwise.
    */
   s.Game.prototype.initCanvas = function() {
-    this.canvas = document.getElementById('world');
+    this.canvas = document.getElementById(this.canvasId);
     if(this.canvas && this.canvas.getContext) {
       this.context = this.canvas.getContext('2d');
       this.canvas.width = s.SCREEN_WIDTH;
