@@ -1,4 +1,4 @@
-(function(window, s, undefined) {
+(function(window, document, s, undefined) {
   'use strict';
 
   /*
@@ -204,4 +204,4 @@
     setInterval(function() {that.mainLoop();}, 1000 / s.FPS);
   };
 
-})(window, window.sponge = window.sponge || {});
+})(window, document, window.sponge = window.sponge || {});
